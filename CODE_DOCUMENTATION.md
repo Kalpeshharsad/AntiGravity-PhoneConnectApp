@@ -59,7 +59,7 @@ graph TD
 | `loadSnapshot()` (Client) | Renders the HTML snapshot and injects CSS overrides for dark mode. |
 | `injectMessage()` | Locates the Antigravity input field and simulates typing/submission. Uses `JSON.stringify` for safe escaping. |
 | `setMode()` / `setModel()` | Robust text-based selectors to change AI settings remotely. |
-| `clickElement()` | Relays a physical click from the phone to the desktop. It uses text-based identification combined with a **precision index calculation** to distinguish between multiple identical blocks (e.g., three separate 'Thought for 2s'). Supports thought toggles and command buttons. |
+| `clickElement()` | Relays a physical click from the phone to the desktop. Uses a **Deterministic Targeting Layer** combining text-anchoring, leaf-most filtering (ignoring parents of targets), and occurrence index tracking to guarantee the correct element is triggered among clones. |
 | `remoteScroll()` | Syncs phone scroll position to Desktop Antigravity chat. |
 | `getAppState()` | Syncs Mode/Model status and detects history visibility. |
 | `startNewChat()` | Triggers the "New Chat" action on Desktop. |
@@ -187,9 +187,11 @@ The server automatically detects SSL certificates and enables HTTPS:
 
 ## Technical Implementation Details (Advanced)
 
-### Synchronization Philosophy: "Phone-as-Master"
-The system utilizes a unidirectional master-slave architecture for state management when active:
-- **Interaction Priority**: The mobile device is treated as the **Master Controller**. Any manual interaction (scrolling, clicking, typing) on the phone triggers an immediate CDP command to the Desktop.
+### Synchronization Philosophy: Deterministic Mirroring
+The system utilizes a dual-pass targeting architecture to maintain deterministic state matching between the Phone (Client) and Antigravity (CDP):
+1.  **Semantic Indexing**: When an element is tapped on mobile, the client calculates its `occurrence index` relative only to other elements with the same text and tag within the chat container.
+2.  **Leaf-Node Isolation**: In dynamically generated trees, standard selectors often return multiple nested layers for a single visual target (e.g., `button > span > text`). The server implements **Leaf-Most Filtering**: if multiple matching elements are found in a parent-child relationship, the system automatically discards the parent and targets the inner-most "leaf" node.
+3.  **Interaction Priority**: The mobile device is treated as the **Master Controller**. Any manual interaction (scrolling, clicking, typing) on the phone triggers an immediate CDP command to the Desktop.
 - **Scroll Synchronization**: Synchronization is strictly **Phone → Desktop**. This design choice prevents "sync-fighting" conflicts and allows the mobile user to maintain a stable viewport regardless of background window movement on the Desktop.
 - **Master-Slave Rebalancing**:
     - **Lock Duration**: A `3000ms` lock is applied when the user touches the phone screen, protecting the mobile viewport from auto-scroll triggers caused by incoming message events.

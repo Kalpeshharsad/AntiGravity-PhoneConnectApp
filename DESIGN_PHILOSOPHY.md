@@ -8,8 +8,10 @@ Antigravity Phone Connect isn't a replacement for the desktop IDE; it's a **wire
 
 ## Design Principles
 
-### 1. Robustness Over Precision (With Intentional Context)
-Selecting elements in a dynamically changing IDE like Antigravity is brittle. This project prioritizes **Text-Based Selection** and **Fuzzy Matching**. Instead of looking for `.button-32x`, we look for an element that *looks like a button* and *contains the word "Gemini"*. To ensure 100% accuracy with multiple identical elements (e.g., three separate "Thought for 2s" blocks), we implement **Occurrence Index Tracking**. The phone identifies which specific instance was tapped and relays that index to the server. Furthermore, when parsing complex lists (like chat history), we implement **Strict Scoped Boundaries** (locking onto specific modal containers) to filter out background visual noise like agent logs or filenames.
+### 1. Robustness Over Precision (With The Zero-Proxy Filter)
+Selecting elements in a dynamically changing IDE like Antigravity is brittle. This project prioritizes **Text-Based Selection** and **Fuzzy Matching**. Instead of looking for `.button-32x`, we look for an element that *looks like a button* and *contains the word "Gemini"*. To ensure 100% accuracy with multiple identical elements (e.g., three separate "Thought for 2s" blocks), we implement **Occurrence Index Tracking**. 
+
+Furthermore, to solve the "Nested DOM Trap" (where clicking a parent div fails but clicking the inner span works), we apply **Leaf-Node Isolation**. The system automatically discards container results and targets the inner-most matching node, ensuring that your tap on a mobile device lands exactly where it needs to on the Desktop.
 
 ### 2. Zero-Impact Mirroring
 The snapshot system clones the DOM before capturing. This ensures that the mirroring process doesn't interfere with the developer's cursor, scroll position, or focus on the Desktop machine.
