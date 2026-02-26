@@ -59,11 +59,11 @@ graph TD
 | `loadSnapshot()` (Client) | Renders the HTML snapshot and injects CSS overrides for dark mode. |
 | `injectMessage()` | Locates the Antigravity input field and simulates typing/submission. Uses `JSON.stringify` for safe escaping. |
 | `setMode()` / `setModel()` | Robust text-based selectors to change AI settings remotely. |
-| `clickElement()` | Relays a physical click from the phone to a specific element index on Desktop. |
+| `clickElement()` | Relays a physical click from the phone to the desktop. It uses text-based identification combined with a **precision index calculation** to distinguish between multiple identical blocks (e.g., three separate 'Thought for 2s'). Supports thought toggles and command buttons. |
 | `remoteScroll()` | Syncs phone scroll position to Desktop Antigravity chat. |
 | `getAppState()` | Syncs Mode/Model status and detects history visibility. |
 | `startNewChat()` | Triggers the "New Chat" action on Desktop. |
-| `getChatHistory()` | Strictly scopes the DOM to the "Select a conversation" pop-up container, accurately scraping chat history titles while filtering out background agent logs and filenames. |
+| `getChatHistory()` | Strictly scopes the DOM to the "Select a conversation" pop-up container. This accurately scrapes conversation titles while explicitly filtering out background agent logs or source filenames that might otherwise contaminate the history list. |
 | `selectChat()` | Switches the desktop session to a specific conversation title. |
 | `hasChatOpen()` | Verifies if the editor and chat container are currently rendered. |
 | `gracefulShutdown()` | Handles SIGINT/SIGTERM for clean server shutdown. |
@@ -87,7 +87,7 @@ graph TD
 | `/chat-history`| GET | Returns list of recently captured conversation titles. |
 | `/select-chat` | POST | Switches the desktop session to a selected conversation. |
 | `/chat-status` | GET | Returns status of the chat container and editor. |
-| `/remote-click` | POST | Triggers a click event on Desktop (for Thought expansion). |
+| `/remote-click` | POST | Triggers a click on Desktop. The payload includes the tag type, clean text, and a calculated occurrence index to ensure the correct element is triggered among identical peers. |
 | `/remote-scroll` | POST | Syncs phone scroll position to Desktop Antigravity. |
 | `/generate-ssl` | POST | Generates SSL certificates (for HTTPS setup via UI). |
 | `/debug-ui` | GET | Returns serialized UI tree for debugging. |

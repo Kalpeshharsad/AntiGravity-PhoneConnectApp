@@ -162,6 +162,7 @@ Since macOS requires Automator for context menu entries, follow these steps manu
 - **Real-Time Mirroring**: 1-second polling interval for near-instant sync.
 - **Remote Control**: Send messages, stop generations, and switch Modes (Fast/Planning) or Models (Gemini/Claude/GPT) directly from your phone.
 - **Scroll Sync**: When you scroll on your phone, the desktop Antigravity scrolls too!
+- **🎯 Remote Command Actions (NEW!)**: Tap "Run", "Reject", or "Ask every time / Always Run" buttons directly from your phone when Antigravity proposes terminal commands.
 - **Thought Expansion**: Tap on "Thinking..." or "Thought" blocks on your phone to remotely expand/collapse them.
 - **Smart Sync**: Bi-directional synchronization ensures your phone always shows the current Model and Mode selected on your desktop.
 - **Premium Mobile UI**: A sleek, dark-themed interface optimized for touch interaction.

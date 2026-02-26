@@ -8,8 +8,8 @@ Antigravity Phone Connect isn't a replacement for the desktop IDE; it's a **wire
 
 ## Design Principles
 
-### 1. Robustness Over Precision (With Boundaries)
-Selecting elements in a dynamically changing IDE like Antigravity is brittle. This project prioritizes **Text-Based Selection** and **Fuzzy Matching**. Instead of looking for `.button-32x`, we look for an element that *looks like a button* and *contains the word "Gemini"*. However, when parsing complex data arrays (like chat history), we implement **Strict Scoped Boundaries** (locking onto specific modal containers) to filter out background visual noise (e.g., agent thought logs or source filenames).
+### 1. Robustness Over Precision (With Intentional Context)
+Selecting elements in a dynamically changing IDE like Antigravity is brittle. This project prioritizes **Text-Based Selection** and **Fuzzy Matching**. Instead of looking for `.button-32x`, we look for an element that *looks like a button* and *contains the word "Gemini"*. To ensure 100% accuracy with multiple identical elements (e.g., three separate "Thought for 2s" blocks), we implement **Occurrence Index Tracking**. The phone identifies which specific instance was tapped and relays that index to the server. Furthermore, when parsing complex lists (like chat history), we implement **Strict Scoped Boundaries** (locking onto specific modal containers) to filter out background visual noise like agent logs or filenames.
 
 ### 2. Zero-Impact Mirroring
 The snapshot system clones the DOM before capturing. This ensures that the mirroring process doesn't interfere with the developer's cursor, scroll position, or focus on the Desktop machine.
@@ -38,6 +38,7 @@ The mobile UI now features a **Full-screen History Layer**. This design choice r
 
 - **The "Bathroom" Use Case**: Optimized for quick checking of status while away from the desk.
 - **Thought Expansion**: The generation process often "hides" the reasoning. We added remote-click relay specifically so you can "peek" into the AI's internal thoughts from your phone - both expanding AND collapsing.
+- **Remote Command Actions**: When Antigravity proposes a terminal command, the "Run", "Reject", and "Ask every time / Always Run" buttons are now tappable from mobile. This eliminates the need to walk back to your desk just to approve or reject a single command — the **"bathroom use case"** taken to its logical conclusion.
 - **Bi-directional Sync**: If you change the model on your Desktop, your phone updates automatically. The goal is for both devices to feel like parts of the same "brain".
 - **🔒 Secure Connection**: HTTPS support removes the browser warning icon, making the experience feel more professional and trustworthy.
 
