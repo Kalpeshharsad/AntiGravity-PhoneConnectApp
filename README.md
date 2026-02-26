@@ -158,6 +158,7 @@ Since macOS requires Automator for context menu entries, follow these steps manu
 - **🌍 Global Web Access**: Secure remote access via ngrok tunnel. Access your AI from mobile data with passcode protection.
 - **🛡️ Auto-Cleanup**: Launchers now automatically sweep away "ghost" processes from previous sessions for a clean start every time.
 - **🔒 HTTPS Support**: Secure connections with self-signed SSL certificates.
+- **Local Image Support**: Local images and SVGs (`vscode-file://` paths) in the desktop chat are automatically converted to Base64 so they render perfectly on mobile without exposing local files.
 - **Real-Time Mirroring**: 1-second polling interval for near-instant sync.
 - **Remote Control**: Send messages, stop generations, and switch Modes (Fast/Planning) or Models (Gemini/Claude/GPT) directly from your phone.
 - **Scroll Sync**: When you scroll on your phone, the desktop Antigravity scrolls too!

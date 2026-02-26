@@ -828,7 +828,7 @@ async function showChatHistory() {
             html += `
                 <div class="history-item" onclick="hideChatHistory(); selectChat('\${safeTitle}');">
                     <span class="history-item-icon">💬</span>
-                    <span class="history-item-title">\${chat.title}</span>
+                    <span class="history-item-title">\${escapeHtml(chat.title)}</span>
                 </div>
             `;
         });

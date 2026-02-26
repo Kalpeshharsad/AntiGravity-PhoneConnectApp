@@ -55,7 +55,7 @@ graph TD
 | `getLocalIP()` | Detects local network IP address for mobile access display. |
 | `discoverCDP()` | Scans ports (9000-9003) to find the Antigravity instance. |
 | `connectCDP()` | Establishes CDP WebSocket with centralized message handling (prevents memory leaks). Uses `pendingCalls` Map with 30s timeout. |
-| `captureSnapshot()` | Injects JS into Antigravity to clone the chat DOM, extract CSS, and return it. |
+| `captureSnapshot()` | Injects JS into Antigravity to clone the chat DOM, converts local images/SVGs (`vscode-file://`) into Base64 to prevent broken images on mobile, extracts CSS, and returns it. |
 | `loadSnapshot()` (Client) | Renders the HTML snapshot and injects CSS overrides for dark mode. |
 | `injectMessage()` | Locates the Antigravity input field and simulates typing/submission. Uses `JSON.stringify` for safe escaping. |
 | `setMode()` / `setModel()` | Robust text-based selectors to change AI settings remotely. |
@@ -181,6 +181,7 @@ The server automatically detects SSL certificates and enables HTTPS:
 - **Selective Access**: LAN devices have automatic access. External tunnel connections (Web Mode) require a passcode or Magic Link.
 - **Session Security**: Uses signed, `httpOnly` cookies for authentication.
 - **Input Sanitization**: User input is escaped using `JSON.stringify` before CDP injection.
+- **Output Encoding**: Data scraped from the IDE (like chat history titles) is strictly escaped via an `escapeHtml` utility before being inserted into the mobile DOM to prevent cross-site scripting (XSS).
 
 > 📚 For detailed security information, browser warning bypass instructions, and recommendations, see [SECURITY.md](SECURITY.md).
 
