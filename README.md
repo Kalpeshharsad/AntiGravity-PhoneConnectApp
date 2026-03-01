@@ -149,6 +149,12 @@ Since macOS requires Automator for context menu entries, follow these steps manu
 
 ---
 
+## 🏗️ Architecture Infographic
+
+![Repo Infographic](./assets/repo_infographic.png)
+
+---
+
 ## ✨ Features
 
 - **🧹 Clean Mobile View (NEW!)**: Automatically filters out "Review Changes" bars, "Linked Objects," and Desktop-specific input areas to keep your phone view focused purely on the chat and code content.
