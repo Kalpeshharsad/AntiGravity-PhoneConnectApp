@@ -155,6 +155,16 @@ Since macOS requires Automator for context menu entries, follow these steps manu
 
 ---
 
+## 🛡️ Shielding & Account Safety
+
+This tool is designed with a **"Local-First"** security model. 
+
+- **Bridge Mechanism**: It uses the **Chrome DevTools Protocol (CDP)** to mirror the UI of your *already-running* desktop session. It **never** extracts OAuth tokens or interacts with Google/AI-provider APIs directly.
+- **Natural Traffic**: All AI requests are still sent by your official desktop application. To the AI provider, your usage looks identical to normal desktop activity.
+- **Zero Bans**: There have been **no reports** of account flags or bans. This is a "Wireless Viewport," not a third-party client that bypasses official security.
+
+---
+
 ## ✨ Features
 
 - **🧹 Clean Mobile View (NEW!)**: Automatically filters out "Review Changes" bars, "Linked Objects," and Desktop-specific input areas to keep your phone view focused purely on the chat and code content.
