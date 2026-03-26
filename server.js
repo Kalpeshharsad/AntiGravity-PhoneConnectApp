@@ -1957,12 +1957,19 @@ async function createServer() {
         ws.on('message', async (message) => {
             try {
                 const data = JSON.parse(message);
+                console.log(`📩 Mobile WS Action: ${data.type}`);
+                
                 if (data.type === 'get_screenshot') {
                     if (!cdpConnection) return ws.send(JSON.stringify({ type: 'error', message: 'CDP disconnected' }));
-                    const screenshot = await captureScreenshot(cdpConnection);
                     
+                    const screenshot = await captureScreenshot(cdpConnection);
+                    if (!screenshot) {
+                        console.log('⚠️  Capture failed (captureScreenshot returned null)');
+                        return;
+                    }
+
                     // Get viewport size for accurate coordinate mapping on client
-                    let viewport = { width: 1440, height: 900 }; // Fallback
+                    let viewport = { width: 1440, height: 900 }; 
                     try {
                         const metrics = await cdpConnection.call("Page.getLayoutMetrics", {});
                         viewport.width = metrics.cssLayoutViewport.width;
@@ -1974,6 +1981,7 @@ async function createServer() {
                         data: screenshot,
                         viewport: viewport
                     }));
+                    // console.log(`📤 Sent screenshot (${Math.round(screenshot.length/1024)} KB)`);
                 } else if (data.type === 'remote_touch') {
                     if (!cdpConnection) return;
                     await remoteTouch(cdpConnection, { x: data.x, y: data.y });

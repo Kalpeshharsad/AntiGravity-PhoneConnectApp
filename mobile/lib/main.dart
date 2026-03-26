@@ -45,6 +45,7 @@ class _MainScreenState extends State<MainScreen> {
   final TextEditingController _msgController = TextEditingController();
   Timer? _refreshTimer;
   Size _remoteViewportSize = const Size(1440, 900);
+  String _debugStatus = 'Connect to start';
 
   @override
   void initState() {
@@ -71,39 +72,53 @@ class _MainScreenState extends State<MainScreen> {
     final url = _urlController.text.replaceFirst('http', 'ws');
     
     try {
+      setState(() => _debugStatus = 'Opening socket...');
       _channel = WebSocketChannel.connect(Uri.parse(url));
       setState(() => _isConnected = true);
       
       _channel!.stream.listen((message) {
-        final data = jsonDecode(message);
-        if (data['type'] == 'screenshot') {
-          setState(() {
-            _lastScreenshot = base64Decode(data['data']);
-            if (data['viewport'] != null) {
-              _remoteViewportSize = Size(
-                data['viewport']['width'].toDouble(),
-                data['viewport']['height'].toDouble(),
-              );
-            }
-          });
-        } else if (data['type'] == 'error') {
-          _showError(data['message']);
+        try {
+          final data = jsonDecode(message);
+          if (data['type'] == 'screenshot') {
+            setState(() {
+              _lastScreenshot = base64Decode(data['data']);
+              _debugStatus = 'Snapshot received (${_lastScreenshot!.length} bytes)';
+              if (data['viewport'] != null) {
+                _remoteViewportSize = Size(
+                  data['viewport']['width'].toDouble(),
+                  data['viewport']['height'].toDouble(),
+                );
+              }
+            });
+          } else if (data['type'] == 'error') {
+            setState(() => _debugStatus = 'Server Error: ${data['message']}');
+            _showError(data['message']);
+          }
+        } catch (e) {
+          setState(() => _debugStatus = 'Parse Error: $e');
         }
       }, onDone: () {
-        setState(() => _isConnected = false);
+        setState(() {
+          _isConnected = false;
+          _debugStatus = 'Connection closed';
+        });
         _refreshTimer?.cancel();
       }, onError: (err) {
-        setState(() => _isConnected = false);
+        setState(() {
+          _isConnected = false;
+          _debugStatus = 'Socket Error: $err';
+        });
         _showError(err.toString());
       });
 
       // Start periodic refresh for smoothness
-      _refreshTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+      _refreshTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
         if (_isConnected) {
           _sendAction({'type': 'get_screenshot'});
         }
       });
     } catch (e) {
+      setState(() => _debugStatus = 'Connect Exception: $e');
       _showError(e.toString());
     }
   }
@@ -215,7 +230,19 @@ class _MainScreenState extends State<MainScreen> {
             child: Container(
               color: Colors.black,
               child: _lastScreenshot == null
-                  ? const Center(child: Text('Connecting to stream...'))
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(color: Colors.blueAccent),
+                          const SizedBox(height: 20),
+                          Text(_debugStatus, 
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white70, fontSize: 14)
+                          ),
+                        ],
+                      ),
+                    )
                   : LayoutBuilder(
                       builder: (context, constraints) {
                         return GestureDetector(
@@ -230,6 +257,15 @@ class _MainScreenState extends State<MainScreen> {
                         );
                       },
                     ),
+            ),
+          ),
+          // Status Bar
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            color: const Color(0xFF0F172A),
+            child: Text(_debugStatus, 
+              style: const TextStyle(fontSize: 10, color: Colors.white38, fontStyle: FontStyle.italic)
             ),
           ),
           if (_isConnected)
