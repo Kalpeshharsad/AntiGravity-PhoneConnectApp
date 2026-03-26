@@ -1,0 +1,41 @@
+name: Build Unsigned iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.11.3' # Matching the user's version as close as possible or latest stable
+          channel: 'stable'
+          
+      - name: Install dependencies
+        run: |
+          cd mobile
+          flutter pub get
+          
+      - name: Build iOS App (Unsigned)
+        run: |
+          cd mobile
+          flutter build ios --no-codesign --release
+          
+      - name: Package IPA
+        run: |
+          cd mobile
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -qr ag_mobile_unsigned.ipa Payload
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ag_mobile_unsigned_ipa
+          path: mobile/ag_mobile_unsigned.ipa

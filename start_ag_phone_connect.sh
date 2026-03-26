@@ -27,7 +27,8 @@ else
 fi
 
 echo "[STARTING] Launching via Unified Launcher..."
-$PYTHON_CMD launcher.py --mode local
+./venv/bin/python launcher.py --mode local
+
 
 # Keep terminal open if server crashes
 echo ""

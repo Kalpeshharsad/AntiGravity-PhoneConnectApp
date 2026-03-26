@@ -195,6 +195,8 @@ async function connectCDP(url) {
     });
 
     await call("Runtime.enable", {});
+    await call("Page.enable", {});
+    await call("Input.enable", {});
     await new Promise(r => setTimeout(r, 1000));
 
     return { ws, call, contexts };
@@ -380,6 +382,45 @@ async function captureSnapshot(cdp) {
     }
 
     return null;
+}
+
+// Capture screenshot
+async function captureScreenshot(cdp) {
+    try {
+        // Ensure Page domain is enabled (already done in connectCDP)
+        const result = await cdp.call("Page.captureScreenshot", {
+            format: "webp",
+            quality: 70, // Balanced for mobile
+            fromSurface: true
+        });
+        return result.data; // Base64 string
+    } catch (e) {
+        return null;
+    }
+}
+
+// Remote touch/click by coordinate
+async function remoteTouch(cdp, { x, y }) {
+    try {
+        // We use Input.dispatchMouseEvent to simulate a click at exact coordinates
+        await cdp.call("Input.dispatchMouseEvent", {
+            type: "mousePressed",
+            x: Math.round(x),
+            y: Math.round(y),
+            button: "left",
+            clickCount: 1
+        });
+        await cdp.call("Input.dispatchMouseEvent", {
+            type: "mouseReleased",
+            x: Math.round(x),
+            y: Math.round(y),
+            button: "left",
+            clickCount: 1
+        });
+        return { success: true };
+    } catch (e) {
+        return { error: e.toString() };
+    }
 }
 
 // Inject message into Antigravity
@@ -1912,6 +1953,39 @@ async function createServer() {
         }
 
         console.log('📱 Client connected (Authenticated)');
+
+        ws.on('message', async (message) => {
+            try {
+                const data = JSON.parse(message);
+                if (data.type === 'get_screenshot') {
+                    if (!cdpConnection) return ws.send(JSON.stringify({ type: 'error', message: 'CDP disconnected' }));
+                    const screenshot = await captureScreenshot(cdpConnection);
+                    
+                    // Get viewport size for accurate coordinate mapping on client
+                    let viewport = { width: 1440, height: 900 }; // Fallback
+                    try {
+                        const metrics = await cdpConnection.call("Page.getLayoutMetrics", {});
+                        viewport.width = metrics.cssLayoutViewport.width;
+                        viewport.height = metrics.cssLayoutViewport.height;
+                    } catch (e) {}
+
+                    ws.send(JSON.stringify({ 
+                        type: 'screenshot', 
+                        data: screenshot,
+                        viewport: viewport
+                    }));
+                } else if (data.type === 'remote_touch') {
+                    if (!cdpConnection) return;
+                    await remoteTouch(cdpConnection, { x: data.x, y: data.y });
+                } else if (data.type === 'inject_message') {
+                    if (!cdpConnection) return;
+                    const res = await injectMessage(cdpConnection, data.text);
+                    ws.send(JSON.stringify({ type: 'injection_result', result: res }));
+                }
+            } catch (e) {
+                console.error('WS Error:', e);
+            }
+        });
 
         ws.on('close', () => {
             console.log('📱 Client disconnected');
